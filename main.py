@@ -1,7 +1,7 @@
 import json as j,os,urllib.request as u
-U=os.environ['MAKEFUN_ENV_URL']
+W=os.environ['MAKEFUN_ENV_URL']
 def P(p,b):
- q=u.Request(U+p,data=j.dumps(b).encode(),headers={'content-type':'application/json'})
+ q=u.Request(W+p,data=j.dumps(b).encode(),headers={'content-type':'application/json'})
  try:
   with u.urlopen(q)as r:return j.load(r)
  except:raise
