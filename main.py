@@ -1,144 +1,93 @@
 import json as j,os,urllib.request as u
-W=os.environ['MAKEFUN_ENV_URL']
-def P(p,b):
- q=u.Request(W+p,data=j.dumps(b).encode(),headers={'content-type':'application/json'})
- try:
-  with u.urlopen(q)as r:return j.load(r)
- except:raise
-V=[100,320,330,500,900,9999]
-T="AAAAKKKKCCEGBBCFAAAEB@?ABCC=AAAA79;;9=AA;ACD;BDE;ADE;BCD9=AB79;;=????AAA?ABC?BBC?ACC?CCC?BAA=???AAAABCCC@AAA@AAA@AAA@AAA@AAAAAAB=??@?AAA?ABB@ABBAABB?BBB?ABA=??@;997;997;997;997=;;9?===EEAAEGCA"
-KN=(-33,-31,-18,-14,14,18,31,33)
-BD=(-17,-15,15,17)
-RD=(-16,-1,1,16)
-KI=BD+RD
-B=[0]*128;K=[0,0];C=0;E=-1;N=0;BUD=16e3
-class AB(Exception):pass
-def F(f):
- global C,E;B[:]=[0]*128
- p=f.split();r=c=0
- for ch in p[0]:
-  if ch=='/':r+=1;c=0
-  elif ch.isdigit():c+=int(ch)
-  else:
-   v='PNBRQK'.index(ch.upper())+1
-   if ch.islower():v=-v
-   B[r*16+c]=v
-   if abs(v)==6:K[v>0]=r*16+c
-   c+=1
- C=sum(1<<'KQkq'.find(ch)for ch in p[2]if ch in'KQkq')
- q=p[3];E=(8-int(q[1]))*16+ord(q[0])-97 if q!='-' else -1
-def A(s,c):
- for O,v in(((15*c,17*c),1),(KN,2),(KI,6)):
-  for o in O:
-   x=s+o
-   if not x&0x88 and B[x]==v*c:return 1
- for d in BD+RD:
-  w=3 if d in BD else 4;x=s+d
-  while not x&0x88 and not B[x]:x+=d
-  if not x&0x88 and B[x] in(5*c,w*c):return 1
- return 0
-def G(c):
- ms=[]
- for s in range(128):
-  if s&0x88 or (p:=B[s])*c<=0:continue
-  v=abs(p);r=s>>4
-  if v==1:
-   d=-16*c;t=s+d;pr=5 if r==(1,6)[c<0] else 0
-   if not t&0x88 and not B[t]:
-    ms.append((s,t,pr))
-    if r==(6,1)[c<0] and not B[s+2*d]:ms.append((s,s+2*d,0))
-   for df in(-1,1):
-    t=s+d+df
-    if not t&0x88 and (B[t]*c<0 or t==E):ms.append((s,t,pr))
-  elif v==2 or v==6:
-   for o in KN if v==2 else KI:
-    t=s+o
-    if not t&0x88 and B[t]*c<=0:ms.append((s,t,0))
-  else:
-   for d in BD if v==3 else RD if v==4 else BD+RD:
-    t=s+d
-    while not t&0x88:
-     if not B[t]:ms.append((s,t,0))
-     elif B[t]*c<0:ms.append((s,t,0));break
-     else:break
-     t+=d
- b0=(1,4)[c<0];kk=(116,4)[c<0]
- for k,sg in((b0,1),(b0*2,-1)):
-  rk=kk+3 if sg>0 else kk-4;a=kk+sg;b=kk+2*sg
-  if C&k and B[rk]==4*c and not B[a] and not A(a,-c) and not B[b] and not A(b,-c) and not A(kk,-c) and (sg>0 or not B[kk-3]):ms.append((kk,b,0))
- o=[]
- for m in ms:
-  u=M(m)
-  if not A(K[c>0],-c):o.append(m)
-  U(m,u)
- return o
-def M(m):
- global C,E
- f,t,pr=m;p=B[f];cap=B[t];ec=rf=rt=0;oc,oe=C,E
- if abs(p)==1 and t==E and not cap:
-  e=(f>>4)*16+(t&7);ec=B[e];B[e]=0
- if abs(p)==6 and abs(t-f)==2:
-  rf,rt=(f+3,f+1) if t>f else (f-4,f-1);B[rt]=B[rf];B[rf]=0
- B[t]=pr*p if pr else p;B[f]=0
- if abs(p)==6:K[p>0]=t;C&=~(3 if p>0 else 12)
- for q,n in((112,2),(119,1),(0,8),(7,4)):
-  if (f==q or t==q) and (abs(p)==4 or abs(cap)==4):C&=~n
- E=(f+t)//2 if abs(p)==1 and abs(t-f)==32 else -1
- return f,t,pr,cap,ec,rf,rt,oc,oe
-def U(m,u):
- global C,E
- f,t,pr,cap,ec,rf,rt,oc,oe=u;p=B[t]
- B[f]=p//5 if pr else p;B[t]=cap
- if ec:B[(f>>4)*16+(t&7)]=ec
- if rt:B[rf]=B[rt];B[rt]=0
- if not pr and abs(p)==6:K[p>0]=f
- C,E=oc,oe
-def E_():
- s=0
- for i,p in enumerate(B):
-  if p:
-   a=abs(p);r=i>>4;f=i&7;f=f if f<4 else 7-f;x=(r if p>0 else 7-r)*4+f;s+=(V[a-1]+5*(ord(T[(a-1)*32+x])-65))*p//a
- return s
-def S(d,a,be,c,pl):
- global N;N+=1
- if N>BUD:raise AB
- if d<=0:
-  a=max(a,c*E_())
-  if a>=be:return a
-  ms=[m for m in G(c) if B[m[1]] or (abs(B[m[0]])==1 and m[1]==E)]
- else:
-  ms=G(c)
-  if not ms:return -99999+pl if A(K[c>0],-c) else 0
- ms.sort(key=lambda m:-((abs(B[m[1]])+1)*10-abs(B[m[0]])))
- for m in ms:
-  u=M(m)
-  try:s=-S(d-1,-be,-a,-c,pl+1)
-  except AB:U(m,u);raise
-  U(m,u)
-  if s>=be:return s
-  if s>a:a=s
- return a
-def R(c):
- global N
- ms=G(c)
- if len(ms)==1:return ms[0]
- bm=ms[0]
- for d in range(9):
-  N=0
+B=(-9,11,9,-11);R=(-10,1,10,-1);U='PNBRQK';Y=39000;L=18300;Z='         \n'*2
+D=dict(zip(U,[(-10,-20,-11,-9),(-19,-8,12,21,19,8,-12,-21),B,R,R+B,R+B]))
+A=dict(zip(U+'.',(100,320,330,500,900,30000,100)))
+T='KKKKUUUUMMOQLLMPKKKOLJIKLMMGKKKKACEECGKKEKMNELNOEKNOELMNCGKLACEEGIIIIKKKIKLMILLMIKMMIMMMILKKGIIIKKKKLMMMJKKKJKKKJKKKJKKKJKKKKKKLGIIJIKKKIKLLJKLLKKLLILLLIKLKGIIJECCAECCAECCAECCAGEECIGGGOOKKOQMK'
+P={p:[A[p]+ord(T[z*32+x//10*4-9+min(x%10,9-x%10)])*5-375 if 19<x and x%10%9 else 0 for x in range(99)]for z,p in enumerate(U)}
+P['.']=[0]*120;N=[0,0];O={};E={};K={};I={}
+X=StopIteration
+r=lambda p:(p[0][::-1].swapcase(),-p[1],*p[3:1:-1],*(x and 119-x for x in p[4:]))
+def G(p):
+ b=p[0]
+ for i,x in enumerate(b):
+  for d in D.get(x,()):
+   j=i+d
+   while(q:=b[j])in'.pnbrqk':
+    if x=='P':
+     if('.'<q or j==p[4]or abs(j-p[5])<2)if d%10 else q=='.'and(d+20 or i>80 and b[i-10]in'.'):
+      for z in'NBRQ'*(j<29)or['']:yield i,j,z
+     break
+    yield i,j,''
+    if x in'NK'or'.'<q:break
+    if i in(91,98)and p[2][i>91]and b[j+(u:=1-2*(i>91))]=='K':yield j+u,j-u,''
+    j+=d
+def V(p,m):
+ b=p[0];i,z,pr=m;x,q=b[i],b[z]
+ return P[x][z]-P[x][i]+P[q.upper()][119-z]+(abs(z-p[5])<2)*P['K'][119-z]+(x=='K'and abs(i-z)==2)*(P['R'][(i+z)//2]-P['R'][91+7*(z>i)])+P[pr or 'P'][z]-P['P'][z]+(x=='P'and z==p[4])*P['P'][109-z]+25*((pr=='B'and b.count('B')==1)+(q=='b'and b.count('b')==2))
+def M(p,m):
+ b,s,w,c,e,k=p;i,z,pr=m;x=b[i];s+=V(p,m);b=list(b);b[z]=pr or x;b[i]='.'
+ if x=='P'and z==e:b[z+10]='.'
+ e=(i-10)*(x=='P'and i-z>19);k=(i+z)//2*(x=='K'and abs(z-i)==2)
+ if k:b[91+7*(z>i)]='.';b[k]='R'
+ return r((''.join(b),s,tuple(w[t]*(x!='K')*(i!=91+7*t)for t in(0,1)),(c[0]*(z!=28),c[1]*(z!=21)),e,k))
+C=lambda p:'k'in[p[0][m[1]]for m in G(p)]
+k=lambda p:p[:1]+p[2:5]
+def B(p,g,d,rt,y,x,qd):
+ N[0]+=1
+ if N[0]>6e4:raise X
+ b,s,*_,e,_=p
+ if s<=-L:return-Y
+ ck=C(r(p))
+ if ck*d*(x<8):d+=1;x+=1
+ rh=N[1]
+ if I.get(k(p),0)>2:N[1]+=1;return 0
+ tk=(p,d,x)
+ if d>rt and tk in O:
+  v,f=O[tk]
+  if v>=g if f else v<g:return v
+ ms=list(G(p));c=lambda m:'.'<b[m[1]]or m[1]==e
+ if ck*rt:ms=[m for m in ms if b[m[0]]!='K'or abs(m[0]-m[1])!=2]
+ bs=-Y;lv=0
+ if d+ck<1:
+  if all(C(M(p,m))for m in ms):return 0
+  if qd>31 or s>=g:return s
+  bs=s;ms=[m for m in ms if c(m)or m[2]]
+ ks=K.get(y,())
+ for m in sorted(ms,key=lambda m:-1e9 if m==E.get(p)else-5e4-10*A[b[m[1]].upper()]+A[b[m[0]]]if c(m)else-4e4-A[m[2]]if m[2]else-3e4+ks.index(m)if m in ks else-(V(p,m)//8)):
+  ch=M(p,m);kk=k(ch);I[kk]=I.get(kk,0)+1
+  try:sc=-B(ch,1-g,d and d-1,0,y+1,x,(qd+1)*(d<1))
+  finally:I[kk]-=1
+  lv|=sc>-Y
+  if sc>bs:
+   bs=sc
+   if rt or d*(bs>=g):E[p]=m
+   if bs>=g:
+    if(c(m)or m[2]or m in ks)==0:K[y]=(m,*ks[:1])
+    break
+ if(d+ck)*(1-lv):bs=(-L-d)*ck
+ if d>rt and N[1]==rh:O[tk]=(bs,bs>=g)
+ return bs
+def R(p):
+ I[k(p)]=I.get(k(p),0)or 1;bs=gs=0;N[:]=[0,0]
+ for d in O,E,K:d.clear()
+ for d in range(99):
   try:
-   ms.sort(key=lambda m:m!=bm);a=-99999;cur=bm
-   for m in ms:
-    u=M(m)
-    try:s=-S(d-1,-99999,-a,-c,1)
-    except AB:U(m,u);raise
-    U(m,u)
-    if s>a:a=s;cur=m
-   bm=cur
-  except AB:break
- return bm
-def Y(m):return ''.join(chr(97+(x&7))+str(8-(x>>4))for x in m[:2])+('q' if m[2] else '')
-while 1:
- g=P('/game',{})
- if g['status']=='done':break
- while g['status']=='your_move':
-  F(g['fen']);g=P('/move',{'game':g['game'],'move':Y(R((-1,1)[g['colour']=='white']))})
+   l,h=1-Y,Y;g=gs
+   while l<h:s=B(p,g,d,1,0,0,0);l,h=((s,h),(l,s))[s<g];g=(l+h+1)//2
+   if p in E:bs=E[p];gs=l
+  except X:break
+ return bs or next((m for m in G(p)if C(M(p,m))==0),None)
+q=lambda x:x>'-'and 4+ord(x[0])-10*int(x[1])
+def F(f):
+ u,v,c,e=f.split()[:4];b=Z+' '+''.join('.'*int(c)if'0'<c<'9'else c for c in u.replace('/','\n '))+'\n'+Z
+ s=sum(-P[x.upper()][119-i]if x>'a'else P.get(x,P['.'])[i]for i,x in enumerate(b))+25*((b.count('B')>1)-(b.count('b')>1))
+ p=b,s,('Q'in c,'K'in c),('k'in c,'q'in c),q(e),0;return r(p)if v<'c'else p
+Q=lambda p,b:j.load(u.urlopen(u.Request(os.getenv('MAKEFUN_ENV_URL','')+p,j.dumps(b).encode(),{'content-type':'application/json'})))
+if __name__=='__main__':
+ while(g:=Q('/game',{}))['status']!='done':
+  while g['status']=='your_move':
+   I.clear();p=F('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -');I[k(p)]=1;S=lambda x:119-q(x)if n%2 else q(x)
+   for n,x in enumerate(g['moves']):p=M(p,(S(x[:2]),S(x[2:4]),x[4:].upper()));I[k(p)]=I.get(k(p),0)+1
+   f=g['fen'];m=R(F(f))
+   if' b 'in f:m=(119-m[0],119-m[1],m[2])
+   g=Q('/move',{'game':g['game'],'move':''.join(chr(96+x%10)+str(10-x//10)for x in m[:2])+m[2].lower()})
